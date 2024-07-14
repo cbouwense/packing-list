@@ -1,0 +1,6 @@
+- local storage persistence
+- server persistence
+- add items
+- hide items
+- remove items
+- different bags / boxes?
