@@ -1,4 +1,4 @@
 - local storage persistence
 - server persistence
-- hide items
-- different bags / boxes?
+- different default lists
+- undo button
