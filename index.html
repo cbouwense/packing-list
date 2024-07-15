@@ -17,104 +17,7 @@
   </head>
   <body>
     <main style="display: flex; gap: 1rem; flex-direction: column; width: 100%; align-items: center;">
-      <ul id="packing-list">
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="pkw-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="pkw-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="pkw-car"    onclick="updateCheckedState(this) "/>
-          <span>pkw</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="sunglasses-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="sunglasses-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="sunglasses-car"    onclick="updateCheckedState(this) "/>
-          <span>sunglasses</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="glasses-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="glasses-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="glasses-car"    onclick="updateCheckedState(this) "/>
-          <span>glasses</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="earbuds-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="earbuds-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="earbuds-car"    onclick="updateCheckedState(this) "/>
-          <span>ear buds</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="phonecharger-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="phonecharger-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="phonecharger-car"    onclick="updateCheckedState(this) "/>
-          <span>phone charger</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="eyemask-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="eyemask-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="eyemask-car"    onclick="updateCheckedState(this) "/>
-          <span>eye mask</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="earplugs-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="earplugs-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="earplugs-car"    onclick="updateCheckedState(this) "/>
-          <span>ear plugs</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="inhaler-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="inhaler-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="inhaler-car"    onclick="updateCheckedState(this) "/>
-          <span>inhaler</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="clothes-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="clothes-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="clothes-car"    onclick="updateCheckedState(this) "/>
-          <span>clothes</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="toiletries-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="toiletries-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="toiletries-car"    onclick="updateCheckedState(this) "/>
-          <span>toiletries</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="waterbottle-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="waterbottle-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="waterbottle-car"    onclick="updateCheckedState(this) "/>
-          <span>water bottle</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="books-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="books-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="books-car"    onclick="updateCheckedState(this) "/>
-          <span>books</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="lumbarpad-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="lumbarpad-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="lumbarpad-car"    onclick="updateCheckedState(this) "/>
-          <span>lumbar pad</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="lumbartowel-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="lumbartowel-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="lumbartowel-car"    onclick="updateCheckedState(this) "/>
-          <span>lumbar towel</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="sandals-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="sandals-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="sandals-car"    onclick="updateCheckedState(this) "/>
-          <span>sandals</span>
-        </li>
-        <li style="display: flex; gap: 4px">
-          <input type="checkbox" id="headphones-packed" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="headphones-staged" onclick="updateCheckedState(this) "/>
-          <input type="checkbox" id="headphones-car"    onclick="updateCheckedState(this) "/>
-          <span>headphones</span>
-        </li>
-      </ul>
+      <ul id="packing-list"><!-- items will be added here --></ul>
       <div>
         <input type="checkbox" id="all-packed" name="all-packed" value="all-packed" onclick="checkOrUncheckAll('packed')">
         <label for="all-packed">All packed</label>
@@ -127,6 +30,8 @@
         <input type="checkbox" id="all-in-car" name="all-in-car" value="all-in-car" onclick="checkOrUncheckAll('car')">
         <label for="all-in-car">All in car</label>
       </div>
+      <input type="text" id="new-item" name="new-item" value="" />
+      <button onclick="addNewItem()">add</button>
     </main>
 
     <script>
@@ -216,6 +121,89 @@
         }
         updateCheckedState();
       }
+
+      function generateCheckboxItem(itemName) {
+        const itemNameWithoutSpaces = itemName.replace(/ /g, '');
+
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+
+        const checkbox1 = document.createElement('input');
+        checkbox1.type = 'checkbox';
+        checkbox1.id = itemNameWithoutSpaces + '-packed';
+        checkbox1.onclick = function() { updateCheckedState(this); };
+
+        const checkbox2 = document.createElement('input');
+        checkbox2.type = 'checkbox';
+        checkbox2.id = itemNameWithoutSpaces + '-staged';
+        checkbox2.onclick = function() { updateCheckedState(this); };
+
+        const checkbox3 = document.createElement('input');
+        checkbox3.type = 'checkbox';
+        checkbox3.id = itemNameWithoutSpaces + '-car';
+        checkbox3.onclick = function() { updateCheckedState(this); };
+
+        const span = document.createElement('span');
+        span.textContent = itemName;
+
+        const button = document.createElement('button');
+        button.textContent = 'delete';
+        button.onclick = function() { deleteItem(this); };
+
+        const checkboxDiv = document.createElement('div');
+
+        checkboxDiv.appendChild(checkbox1);
+        checkboxDiv.appendChild(checkbox2);
+        checkboxDiv.appendChild(checkbox3);
+        checkboxDiv.appendChild(span);
+        li.appendChild(checkboxDiv);
+        li.appendChild(button);
+
+        document.getElementById('packing-list').appendChild(li);
+      }
+
+      function addNewItem() {
+        const itemName = document.getElementById('new-item').value;
+        if (!itemName) return;
+        // If item already exists, do nothing
+        if (document.getElementById(itemName.replace(/ /g, '') + '-packed')) return;
+        if (document.getElementById(itemName.replace(/ /g, '') + '-staged')) return;
+        if (document.getElementById(itemName.replace(/ /g, '') + '-car')) return;
+        
+        generateCheckboxItem(itemName);
+        document.getElementById('new-item').value = '';
+        updateCheckedState();
+      }
+
+      function deleteItem(item) {
+        const itemName = item.parentElement.querySelector('span').textContent;
+        document.getElementById(itemName.replace(/ /g, '') + '-packed').checked = false;
+        document.getElementById(itemName.replace(/ /g, '') + '-staged').checked = false;
+        document.getElementById(itemName.replace(/ /g, '') + '-car').checked = false;
+        item.parentElement.remove();
+        updateCheckedState();
+      }
+
+      const items = [
+        'pkw',
+        'sunglasses',
+        'glasses',
+        'ear buds',
+        'phone charger',
+        'eye mask',
+        'ear plugs',
+        'inhaler',
+        'clothes',
+        'toiletries',
+        'water bottle',
+        'books',
+        'lumbar pad',
+        'lumbar towel',
+        'sandals',
+      ];
+
+      items.forEach(item => generateCheckboxItem(item));
 
       // Do once on page load
       updateCheckedState();
