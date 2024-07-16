@@ -152,21 +152,28 @@
         const noneAreChecked = !someAreChecked;
 
         // if all are checked, uncheck all, and vice versa
+        const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
+        let newLocalStorage = {};
         switch(state) {
           case 'packed':
-            if (allChecked) {
+            if (allChecked) { // uncheck all
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
-            } else {
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = '' });
+            } else { // check all
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'packed' });
             }
             stagedCheckboxes.forEach(checkbox => checkbox.checked = false);
             carCheckboxes.forEach(checkbox => checkbox.checked = false);
+
             break;
           case 'staged':
             if (allChecked) {
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'packed' });
             } else {
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'staged' });
             }
             packedCheckboxes.forEach(checkbox => checkbox.checked = true);
             carCheckboxes.forEach(checkbox => checkbox.checked = false);
@@ -174,13 +181,18 @@
           case 'car':
             if (allChecked) {
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'staged' });
             } else {
               [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
+              Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'car' });
             }
             packedCheckboxes.forEach(checkbox => checkbox.checked = true);
             stagedCheckboxes.forEach(checkbox => checkbox.checked = true);
             break;
         }
+
+        localStorage.setItem('gottapack', JSON.stringify(newLocalStorage));
+
         updateCheckedState();
       }
 
@@ -241,7 +253,7 @@
         document.getElementById('new-item').value = '';
 
         const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
-        const newLocalStorage = { ...oldLocalStorage, [itemName]: 'packed' };
+        const newLocalStorage = { ...oldLocalStorage, [itemName]: '' };
         localStorage.setItem('gottapack', JSON.stringify(newLocalStorage));
 
         updateCheckedState();

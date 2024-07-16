@@ -1,4 +1,3 @@
-- local storage persistence
 - server persistence
 - different default lists
 - undo button
