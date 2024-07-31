@@ -99,7 +99,7 @@
         // replace all underscores with spaces
         const itemName = item.replace(/_/g, ' ');
 
-        const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
+        const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack-dog'));
 
         let newState = '';
         switch (state) {
@@ -121,7 +121,7 @@
         }
 
         localStorage.setItem(
-          'gottapack',
+          'gottapack-dog',
           JSON.stringify({ ...oldLocalStorage, [itemName]: newState })
         );
       }
@@ -157,7 +157,7 @@
       const noneAreChecked = !someAreChecked;
 
       // if all are checked, uncheck all, and vice versa
-      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
+      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack-dog'));
       let newLocalStorage = {};
       switch (state) {
         case 'packed':
@@ -196,7 +196,7 @@
           break;
       }
 
-      localStorage.setItem('gottapack', JSON.stringify(newLocalStorage));
+      localStorage.setItem('gottapack-dog', JSON.stringify(newLocalStorage));
 
       updateCheckedState();
     }
@@ -257,9 +257,9 @@
       generateCheckboxItem(itemName);
       document.getElementById('new-item').value = '';
 
-      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
+      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack-dog'));
       const newLocalStorage = { ...oldLocalStorage, [itemName]: '' };
-      localStorage.setItem('gottapack', JSON.stringify(newLocalStorage));
+      localStorage.setItem('gottapack-dog', JSON.stringify(newLocalStorage));
 
       updateCheckedState();
     }
@@ -271,10 +271,10 @@
       document.getElementById(itemName.replace(/ /g, '_') + '-car').checked = false;
       item.parentElement.remove();
 
-      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack'));
+      const oldLocalStorage = JSON.parse(localStorage.getItem('gottapack-dog'));
       const newLocalStorage = { ...oldLocalStorage };
       delete newLocalStorage[itemName];
-      localStorage.setItem('gottapack', JSON.stringify(newLocalStorage));
+      localStorage.setItem('gottapack-dog', JSON.stringify(newLocalStorage));
 
       updateCheckedState();
     }
@@ -290,7 +290,7 @@
     //   "phone":  "staged",
     //   "wallet": "car"
     // };
-    const storedItems = localStorage.getItem('gottapack');
+    const storedItems = localStorage.getItem('gottapack-dog');
     if (storedItems) {
       const itemNames = [];
       const items = JSON.parse(storedItems);
@@ -306,36 +306,32 @@
     } else {
       const freshLocalState = {};
       const defaultItems = [
-        'pkw',
-        'sunglasses',
-        'glasses',
-        'ear buds',
-        'phone charger',
-        'eye mask',
-        'ear plugs',
-        'inhaler',
-        'clothes',
-        'toiletries',
-        'water bottle',
-        'books',
-        'lumbar pad',
-        'lumbar towel',
-        'sandals',
+        'poop bags',
+        'treats',
+        'water',
+        'water bowl',
+        'towel',
+        '100 foot leash',
+        'harness',
+        'dog food',
+        'food bowl',
+        'crate',
+        'dog bed',
+        'dog toys',
+        'peanut butter',
+        'kong',
+        'kong stuffing',
       ];
       defaultItems.forEach(item => {
         generateCheckboxItem(item);
         freshLocalState[item] = '';
       });
 
-      localStorage.setItem('gottapack', JSON.stringify(freshLocalState));
+      localStorage.setItem('gottapack-dog', JSON.stringify(freshLocalState));
     }
 
     // Do once on page load
     updateCheckedState();
-
-    const currentPath = window.location.pathname;
-    const filename = currentPath.split('/').pop().split('.')[0];
-    console.log(currentPath, filename);
   </script>
 </body>
 
