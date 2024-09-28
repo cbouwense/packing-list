@@ -178,6 +178,7 @@ function addNewItem() {
 
     updateCheckedState();
 }
+window.addNewItem = addNewItem;
 
 function deleteItem(item) {
     const itemName = item.parentElement.querySelector('span').textContent;
@@ -198,6 +199,7 @@ function reset() {
     localStorage.removeItem(storageKey);
     location.reload();
 }
+window.reset = reset;
 
 const page = window.location.pathname.replaceAll('/', '');
 if (page) {
