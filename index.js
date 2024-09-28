@@ -1,3 +1,5 @@
+import defaultItems from "./defaultItems.json" with { type: "json" };
+
 // Global state
 let storageKey = 'gottapack';
 
@@ -197,44 +199,40 @@ function reset() {
     location.reload();
 }
 
-async function init(page) {
-    const res = await fetch('./defaultItems.json');
-    const defaultItems = await res.json();
-
-    if (page) {
-        storageKey += '-' + page;
-    }
-    console.log(storageKey);
-    // Store in the form
-    // "gottapack": {
-    //   "brush":  "packed",
-    //   "phone":  "staged",
-    //   "wallet": "car"
-    // };
-    const storedItems = localStorage.getItem(storageKey);
-
-    if (storedItems) {
-        const itemNames = [];
-        const items = JSON.parse(storedItems);
-        Object.entries(items).forEach(([itemName, state]) => {
-        itemNames.push(itemName);
-        generateCheckboxItem(
-            itemName,
-            state === 'packed',
-            state === 'staged',
-            state === 'car'
-        );
-        });
-    } else {
-        const freshLocalState = {};
-        defaultItems.forEach(item => {
-            generateCheckboxItem(item);
-            freshLocalState[item] = '';
-        });
-
-        localStorage.setItem(storageKey, JSON.stringify(freshLocalState));
-    }
-
-    // Do once on page load
-    updateCheckedState();
+const page = window.location.pathname.replaceAll('/', '');
+if (page) {
+    storageKey += '-' + page;
 }
+console.log(page);
+// Store in the form
+// "gottapack": {
+//   "brush":  "packed",
+//   "phone":  "staged",
+//   "wallet": "car"
+// };
+const storedItems = localStorage.getItem(storageKey);
+
+if (storedItems) {
+    const itemNames = [];
+    const items = JSON.parse(storedItems);
+    Object.entries(items).forEach(([itemName, state]) => {
+    itemNames.push(itemName);
+    generateCheckboxItem(
+        itemName,
+        state === 'packed',
+        state === 'staged',
+        state === 'car'
+    );
+    });
+} else {
+    const freshLocalState = {};
+    defaultItems.forEach(item => {
+        generateCheckboxItem(item);
+        freshLocalState[item] = '';
+    });
+
+    localStorage.setItem(storageKey, JSON.stringify(freshLocalState));
+}
+
+// Do once on page load
+updateCheckedState();
