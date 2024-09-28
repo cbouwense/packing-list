@@ -197,7 +197,10 @@ function reset() {
     location.reload();
 }
 
-function init(defaultItems, page) {
+async function init(page) {
+    const res = await fetch('./defaultItems.json');
+    const defaultItems = await res.json();
+
     if (page) {
         storageKey += '-' + page;
     }
