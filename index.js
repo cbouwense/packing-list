@@ -199,7 +199,10 @@ function reset() {
     location.reload();
 }
 
-async function init() {    
+async function init() {
+    window.reset = reset;
+    window.addNewItem = addNewItem;
+    
     const page = window.location.pathname.replaceAll('/', '');
     if (page) {
         storageKey += '-' + page;
