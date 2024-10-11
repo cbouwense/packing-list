@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Gotta pack</title>
+  <link rel="stylesheet" href="../main.css">
+</head>
+
+<body>
+  <main>
+    <ul id="packing-list">
+      <!-- items will be added here -->
+    </ul>
+    <div>
+      <input type="checkbox" id="all-packed" name="all-packed" value="all-packed" onclick="checkOrUncheckAll('packed')">
+      <label for="all-packed">All packed</label>
+    </div>
+    <div>
+      <input type="checkbox" id="all-staged" name="all-staged" value="all-staged" onclick="checkOrUncheckAll('staged')">
+      <label for="all-staged">All staged</label>
+    </div>
+    <div>
+      <input type="checkbox" id="all-in-car" name="all-in-car" value="all-in-car" onclick="checkOrUncheckAll('car')">
+      <label for="all-in-car">All in car</label>
+    </div>
+    <input type="text" id="new-item" name="new-item" value="" />
+    <button onclick="addNewItem()">add</button>
+    <button onclick="reset()">reset</button>
+  </main>
+
+  <script src="../index.js"></script>
+  <script>init();</script>
+</body>
+
+</html>
