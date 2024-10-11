@@ -1,5 +1,3 @@
-import defaultItems from "./defaultItems.json" with { type: "json" };
-
 // Global state
 let storageKey = 'gottapack';
 
@@ -10,7 +8,6 @@ let storageKey = 'gottapack';
 function updateCheckedState(elem) {
     if (elem) {
     const [item, state] = elem.id.split('-');
-    console.log(item, state)
     // replace all underscores with spaces
     const itemName = item.replace(/_/g, ' ');
 
@@ -150,6 +147,9 @@ function generateCheckboxItem(itemName, isPacked, isStaged, isInCar) {
     button.onclick = function () { deleteItem(this); };
 
     const checkboxDiv = document.createElement('div');
+    checkboxDiv.style.display = 'flex';
+    checkboxDiv.style.alignItems = 'center';
+    checkboxDiv.style.textAlign = "center"
 
     checkboxDiv.appendChild(checkbox1);
     checkboxDiv.appendChild(checkbox2);
@@ -178,7 +178,6 @@ function addNewItem() {
 
     updateCheckedState();
 }
-window.addNewItem = addNewItem;
 
 function deleteItem(item) {
     const itemName = item.parentElement.querySelector('span').textContent;
@@ -199,42 +198,46 @@ function reset() {
     localStorage.removeItem(storageKey);
     location.reload();
 }
-window.reset = reset;
 
-const page = window.location.pathname.replaceAll('/', '');
-if (page) {
-    storageKey += '-' + page;
+async function init() {    
+    const page = window.location.pathname.replaceAll('/', '');
+    if (page) {
+        storageKey += '-' + page;
+    }
+
+    // Store in the form
+    // "gottapack": {
+    //   "brush":  "packed",
+    //   "phone":  "staged",
+    //   "wallet": "car"
+    // };
+    const storedItems = localStorage.getItem(storageKey);
+
+    if (storedItems) {
+        const itemNames = [];
+        const items = JSON.parse(storedItems);
+        Object.entries(items).forEach(([itemName, state]) => {
+            itemNames.push(itemName);
+            generateCheckboxItem(
+                itemName,
+                state === 'packed',
+                state === 'staged',
+                state === 'car'
+            );
+        });
+    } else {
+        const res = await fetch(`./defaultItems.json`);
+        const defaultItems = await res.json();
+
+        const freshLocalState = {};
+        defaultItems.forEach(item => {
+            generateCheckboxItem(item);
+            freshLocalState[item] = '';
+        });
+
+        localStorage.setItem(storageKey, JSON.stringify(freshLocalState));
+    }
+
+    // Do once on page load
+    updateCheckedState();
 }
-console.log(page);
-// Store in the form
-// "gottapack": {
-//   "brush":  "packed",
-//   "phone":  "staged",
-//   "wallet": "car"
-// };
-const storedItems = localStorage.getItem(storageKey);
-
-if (storedItems) {
-    const itemNames = [];
-    const items = JSON.parse(storedItems);
-    Object.entries(items).forEach(([itemName, state]) => {
-    itemNames.push(itemName);
-    generateCheckboxItem(
-        itemName,
-        state === 'packed',
-        state === 'staged',
-        state === 'car'
-    );
-    });
-} else {
-    const freshLocalState = {};
-    defaultItems.forEach(item => {
-        generateCheckboxItem(item);
-        freshLocalState[item] = '';
-    });
-
-    localStorage.setItem(storageKey, JSON.stringify(freshLocalState));
-}
-
-// Do once on page load
-updateCheckedState();
