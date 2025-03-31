@@ -32,7 +32,7 @@ function toggleCheckbox(checkboxElement) {
     const itemName = checkboxElement.id.replace(/-/g, ' ');  
     const newCheckboxState = checkboxElement.checked;
    
-    updateClientState(checkboxElement, newCheckboxState);
+    updateClientState(itemName, newCheckboxState);
     updateApplicationState(itemName, newCheckboxState, true);
 }
 
@@ -58,8 +58,10 @@ function updateApplicationState(itemName, newCheckedState, broadcast = false) {
     document.getElementById('all-packed').checked = areAllCheckboxesChecked;
 }
 
-function updateClientState(checkboxElement, newCheckedState) {
+function updateClientState(itemName, newCheckedState) {
     // Update the actual checkbox.
+    const itemNameAsCheckboxId = itemName.replace(/ /g, '-');
+    const checkboxElement = document.getElementById(itemNameAsCheckboxId);
     checkboxElement.checked = newCheckedState;
 
     // See if all of the checkboxes are checked now. If so, check the "All packed" checkbox.
@@ -224,7 +226,10 @@ async function init() {
 	const messageData = JSON.parse(event.data);
 	const itemName = Object.keys(messageData)[0]; 
 	const isPacked = Object.values(messageData)[0]; 
-        updateApplicationState(itemName, isPacked);
+       
+	// TODO: should these even be separate at this point? I don't even remember why I separated them in the first place.
+	updateClientState(itemName, isPacked);
+	updateApplicationState(itemName, isPacked);
     }
 }
 
