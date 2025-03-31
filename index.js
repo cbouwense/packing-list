@@ -1,202 +1,177 @@
+// ----------------------------------------------------------------------------------------------------
 // Global state
+// ----------------------------------------------------------------------------------------------------
+
+/**
+ * storageKey is the key by which you can access the program state within local
+ * storage. The schema for the program state is:
+ *  
+ * storageKey: {
+ *   itemName1: boolean;
+ *   itemName2: boolean;
+ *   ...
+ *   itemNameN: boolean;
+ * }
+ *
+ * The need for a storage key arises from there being mulitple potential lists one
+ * can store locally. Think about the different paths of /dog, /backpacking, etc.
+ * In those cases, the storageKey is mutated into `${gottapack}-${path}`; so,
+ * gottapack-dog, gottapack-backpacking, etc. The default page / does not mutate the
+ * storageKey, and therefore is accessed as "gottapack".
+ */
 let storageKey = 'gottapack';
 
-/**
- * @param elem {EventTarget}
- * @returns {void}
- */
-function updateCheckedState(elem) {
-    if (elem) {
-    const [item, state] = elem.id.split('-');
-    // replace all underscores with spaces
-    const itemName = item.replace(/_/g, ' ');
+/** Websocket connection */
+let ws; 
 
-    const oldLocalStorage = JSON.parse(localStorage.getItem(storageKey));
+// ----------------------------------------------------------------------------------------------------
+// Functions
+// ----------------------------------------------------------------------------------------------------
 
-    let newState = '';
-    switch (state) {
-        case 'packed':
-        newState = elem.checked ? 'packed' : '';
-        document.getElementById(`${item}-staged`).checked = false;
-        document.getElementById(`${item}-car`).checked = false;
-        break;
-        case 'staged':
-        newState = elem.checked ? 'staged' : 'packed';
-        document.getElementById(`${item}-packed`).checked = true;
-        document.getElementById(`${item}-car`).checked = false;
-        break;
-        case 'car':
-        newState = elem.checked ? 'car' : 'staged';
-        document.getElementById(`${item}-packed`).checked = true;
-        document.getElementById(`${item}-staged`).checked = true;
-        break;
-    }
-
-    localStorage.setItem(
-        storageKey,
-        JSON.stringify({ ...oldLocalStorage, [itemName]: newState })
-    );
-    }
-
-    const checkboxes = document.getElementById('packing-list').querySelectorAll('input[type="checkbox"]');
-    const packedCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('packed'));
-    const stagedCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('staged'));
-    const carCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('car'));
-
-    const allPackedChecked = [...packedCheckboxes].every(checkbox => checkbox.checked);
-    document.getElementById('all-packed').checked = allPackedChecked;
-
-    const allStagedChecked = [...stagedCheckboxes].every(checkbox => checkbox.checked);
-    document.getElementById('all-staged').checked = allStagedChecked;
-
-    const allCarChecked = [...carCheckboxes].every(checkbox => checkbox.checked);
-    document.getElementById('all-in-car').checked = allCarChecked;
+function toggleCheckbox(checkboxElement) {
+    const itemName = checkboxElement.id.replace(/-/g, ' ');  
+    const newCheckboxState = checkboxElement.checked;
+   
+    updateClientState(checkboxElement, newCheckboxState);
+    updateApplicationState(itemName, newCheckboxState, true);
 }
 
 /**
- * @param state {string} 'packed', 'staged', 'car'
- * @returns {void}
+ * updateApplicationState updates the underlying state of the program. This is in constrast to updating the physical checkboxes.
+ *
+ * @param itemName:        string, "toothbrush" or "hair brush"
+ * @param newCheckedState: boolean, true when checking a previously unchecked box. false when checking a previously checked box.
+ * @param broadcast:       boolean, true when all other clients should know about update, false when that info should not be shared. In practice, broadcast should be true only when a user pressed the checkbox themselves, and all other users should be updated. In other words, if should be false when getting updated about other users' actions. If these updates from other clients are also broadcast, you will get a recursive loop of sending.      
  */
-function checkOrUncheckAll(state) {
-    const checkboxes = document.getElementById('packing-list').querySelectorAll('input[type="checkbox"]');
-    const packedCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('packed'));
-    const stagedCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('staged'));
-    const carCheckboxes = [...checkboxes].filter(checkbox => checkbox.id.includes('car'));
-    const relevantCheckboxes = state === 'packed' ? packedCheckboxes : (state === 'staged' ? stagedCheckboxes : carCheckboxes);
+function updateApplicationState(itemName, newCheckedState, broadcast = false) {
+    const oldLocalStorage = JSON.parse(localStorage.getItem(storageKey));
 
-    const allChecked = [...relevantCheckboxes].every(checkbox => checkbox.checked);
-    const someAreChecked = [...relevantCheckboxes].some(checkbox => checkbox.checked);
+    const newStateObject = { [itemName]: newCheckedState };
+    const newStateString = JSON.stringify({ ...oldLocalStorage, ...newStateObject });
+    localStorage.setItem(storageKey, newStateString);
+    if (broadcast) {
+        ws.send(JSON.stringify(newStateObject));
+    }
+
+    const checkboxes = document.getElementById('packing-list').querySelectorAll('input[type="checkbox"]');
+    const areAllCheckboxesChecked = [...checkboxes].every(checkbox => checkbox.checked);
+    document.getElementById('all-packed').checked = areAllCheckboxesChecked;
+}
+
+function updateClientState(checkboxElement, newCheckedState) {
+    // Update the actual checkbox.
+    checkboxElement.checked = newCheckedState;
+
+    // See if all of the checkboxes are checked now. If so, check the "All packed" checkbox.
+    const checkboxes = document.getElementById('packing-list').querySelectorAll('input[type="checkbox"]');
+    const areAllCheckboxesChecked = [...checkboxes].every(checkbox => checkbox.checked);
+    document.getElementById('all-packed').checked = areAllCheckboxesChecked;
+}
+
+function checkOrUncheckAll() {
+    const checkboxes = document.getElementById('packing-list').querySelectorAll('input[type="checkboxchecked"]');
+    const allAreChecked = [...checkboxes].every(checkbox => checkbox.checked);
+    const someAreChecked = [...checkboxes].some(checkbox => checkbox.checked);
     const noneAreChecked = !someAreChecked;
 
-    // if all are checked, uncheck all, and vice versa
     const oldLocalStorage = JSON.parse(localStorage.getItem(storageKey));
     let newLocalStorage = {};
-    switch (state) {
-    case 'packed':
-        if (allChecked) { // uncheck all
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = '' });
-        } else { // check all
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'packed' });
-        }
-        stagedCheckboxes.forEach(checkbox => checkbox.checked = false);
-        carCheckboxes.forEach(checkbox => checkbox.checked = false);
-
-        break;
-    case 'staged':
-        if (allChecked) {
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'packed' });
-        } else {
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'staged' });
-        }
-        packedCheckboxes.forEach(checkbox => checkbox.checked = true);
-        carCheckboxes.forEach(checkbox => checkbox.checked = false);
-        break;
-    case 'car':
-        if (allChecked) {
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = false);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'staged' });
-        } else {
-        [...relevantCheckboxes].forEach(checkbox => checkbox.checked = true);
-        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = 'car' });
-        }
-        packedCheckboxes.forEach(checkbox => checkbox.checked = true);
-        stagedCheckboxes.forEach(checkbox => checkbox.checked = true);
-        break;
+    // if all checkboxes are currently checked, then uncheck them all
+    if (allAreChecked) { 
+        [...checkboxes].forEach(checkbox => checkbox.checked = false);
+        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = false });
     }
-
+    // if only some or none of the checkboxes are currently checked, then check them all      	
+    else {
+        [...checkboxes].forEach(checkbox => checkbox.checked = true);
+        Object.entries(oldLocalStorage).forEach(([key, value]) => { newLocalStorage[key] = true });
+    }
+    
     localStorage.setItem(storageKey, JSON.stringify(newLocalStorage));
-
-    updateCheckedState();
 }
 
-function generateCheckboxItem(itemName, isPacked, isStaged, isInCar) {
-    const itemNameWithoutSpaces = itemName.replace(/ /g, '_');
+/**
+ * @param itemNameWithSpaces: string, "toothbrush" or "hair brush"
+ * @param isPacked:           boolean   
+ */
+function generateCheckboxItem(itemNameWithSpaces, isPacked, broadcast = false) {
+    const itemName = itemNameWithSpaces;
+    const itemNameAsCheckboxId = itemName.replace(/ /g, '-');
 
     const li = document.createElement('li');
 
-    const checkbox1 = document.createElement('input');
-    checkbox1.type = 'checkbox';
-    checkbox1.id = itemNameWithoutSpaces + '-packed';
-    checkbox1.onclick = function () { updateCheckedState(this); };
-    if (isPacked) checkbox1.checked = true;
-    if (isStaged) checkbox1.checked = true;
-    if (isInCar) checkbox1.checked = true;
+    const checkbox   = document.createElement('input');
+    checkbox.type    = 'checkbox';
+    checkbox.id      = itemNameAsCheckboxId;
+    checkbox.onclick = () => { toggleCheckbox(checkbox) }; 
+    checkbox.checked = isPacked;
 
-    const checkbox2 = document.createElement('input');
-    checkbox2.type = 'checkbox';
-    checkbox2.id = itemNameWithoutSpaces + '-staged';
-    checkbox2.onclick = function () { updateCheckedState(this); };
-    if (isStaged) checkbox2.checked = true;
-    if (isInCar) checkbox2.checked = true;
+    const label       = document.createElement('label');
+    label.textContent = itemName;
+    label.for         = itemNameAsCheckboxId;
 
-    const checkbox3 = document.createElement('input');
-    checkbox3.type = 'checkbox';
-    checkbox3.id = itemNameWithoutSpaces + '-car';
-    checkbox3.onclick = function () { updateCheckedState(this); };
-    if (isInCar) checkbox3.checked = true;
-
-    const span = document.createElement('span');
-    span.textContent = itemName;
-
-    const button = document.createElement('button');
+    const button       = document.createElement('button');
     button.textContent = 'delete';
-    button.onclick = function () { deleteItem(this); };
+    button.onclick     = function () { deleteItem(checkbox); };
 
-    const checkboxDiv = document.createElement('div');
-    checkboxDiv.style.display = 'flex';
+    const checkboxDiv            = document.createElement('div');
+    // TODO: should probably just give this div a class and have the styles for it in a stylesheet.
+    checkboxDiv.style.display    = 'flex';
     checkboxDiv.style.alignItems = 'center';
-    checkboxDiv.style.textAlign = "center"
+    checkboxDiv.style.textAlign  = 'center';
 
-    checkboxDiv.appendChild(checkbox1);
-    checkboxDiv.appendChild(checkbox2);
-    checkboxDiv.appendChild(checkbox3);
-    checkboxDiv.appendChild(span);
+    checkboxDiv.appendChild(checkbox);
+    checkboxDiv.appendChild(label);
     li.appendChild(checkboxDiv);
     li.appendChild(button);
 
     document.getElementById('packing-list').appendChild(li);
 }
 
+// TODO: this is a potential XSS site. 
 function addNewItem() {
-    const itemName = document.getElementById('new-item').value;
-    if (!itemName) return;
-    // If item already exists, do nothing
-    if (document.getElementById(itemName.replace(/ /g, '_') + '-packed')) return;
-    if (document.getElementById(itemName.replace(/ /g, '_') + '-staged')) return;
-    if (document.getElementById(itemName.replace(/ /g, '_') + '-car')) return;
+    const defaultNewItemPackedState = false;
 
-    generateCheckboxItem(itemName);
+    // Get the new item name from the name text input.
+    const itemName = document.getElementById('new-item').value;
+
+    // If the item name text input is empty, do nothing.
+    if (!itemName) return;
+
+    // If item already exists, do nothing.
+    const itemNameAsCheckboxId = itemName.replace(/ /g, '-');  
+    if (document.getElementById(itemNameAsCheckboxId)) return;
+
+    generateCheckboxItem(itemName, defaultNewItemPackedState, true);
+
+    // Clear the new item name text input.
     document.getElementById('new-item').value = '';
 
     const oldLocalStorage = JSON.parse(localStorage.getItem(storageKey));
-    const newLocalStorage = { ...oldLocalStorage, [itemName]: '' };
+    const newLocalStorage = { ...oldLocalStorage, [itemName]: defaultNewItemPackedState };
+    
     localStorage.setItem(storageKey, JSON.stringify(newLocalStorage));
-
-    updateCheckedState();
+    ws.send(JSON.stringify({ [itemName]: defaultNewItemPackedState }));
 }
 
-function deleteItem(item) {
-    const itemName = item.parentElement.querySelector('span').textContent;
-    document.getElementById(itemName.replace(/ /g, '_') + '-packed').checked = false;
-    document.getElementById(itemName.replace(/ /g, '_') + '-staged').checked = false;
-    document.getElementById(itemName.replace(/ /g, '_') + '-car').checked = false;
-    item.parentElement.remove();
+// TODO: might be nice to pop an "are you sure" thing up.
+function deleteItem(checkboxElement) {
+    const itemName = checkboxElement.id.replace(/ /g, '-');  
+    checkboxElement.parentElement.parentElement.remove();
 
+    // TODO: I keep seeing this pattern of getting the old local state and updating to a new state and sending the update over websockets. Probably a good idea to extract that to a function?
     const oldLocalStorage = JSON.parse(localStorage.getItem(storageKey));
     const newLocalStorage = { ...oldLocalStorage };
     delete newLocalStorage[itemName];
     localStorage.setItem(storageKey, JSON.stringify(newLocalStorage));
-
-    updateCheckedState();
+    // TODO: how will we transmit deletions? 
 }
 
+// TODO: might be nice to pop an "are you sure" thing up.
 function reset() {
     localStorage.removeItem(storageKey);
     location.reload();
+    // TODO: how will we transmit resetting?
 }
 
 async function init() {
@@ -210,37 +185,46 @@ async function init() {
 
     // Store in the form
     // "gottapack": {
-    //   "brush":  "packed",
-    //   "phone":  "staged",
-    //   "wallet": "car"
+    //   "brush":  true,
+    //   "phone":  true,
+    //   "wallet": false,
     // };
+    //
+    // If on a specific page like /dog, suffix the storageKey
+    // "gottapack-dog": {
+    //   "poop bags": false,
+    //   "treats":    true,
+    // }
+    // ... 
     const storedItems = localStorage.getItem(storageKey);
 
     if (storedItems) {
         const itemNames = [];
         const items = JSON.parse(storedItems);
-        Object.entries(items).forEach(([itemName, state]) => {
+        Object.entries(items).forEach(([itemName, isPacked]) => {
             itemNames.push(itemName);
-            generateCheckboxItem(
-                itemName,
-                state === 'packed',
-                state === 'staged',
-                state === 'car'
-            );
+            generateCheckboxItem(itemName, isPacked);
         });
     } else {
         const res = await fetch(`./defaultItems.json`);
         const defaultItems = await res.json();
 
         const freshLocalState = {};
-        defaultItems.forEach(item => {
-            generateCheckboxItem(item);
-            freshLocalState[item] = '';
+        defaultItems.forEach(itemName => {
+            generateCheckboxItem(itemName, false);
+            freshLocalState[itemName] = false;
         });
 
         localStorage.setItem(storageKey, JSON.stringify(freshLocalState));
     }
 
-    // Do once on page load
-    updateCheckedState();
+    // Websocket stuff
+    ws = new WebSocket(`http://${window.location.host}/ws`); 
+    ws.onmessage = (event) => {
+	const messageData = JSON.parse(event.data);
+	const itemName = Object.keys(messageData)[0]; 
+	const isPacked = Object.values(messageData)[0]; 
+        updateApplicationState(itemName, isPacked);
+    }
 }
+
