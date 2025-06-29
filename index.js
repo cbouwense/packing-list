@@ -1,6 +1,30 @@
 // Global state
 let storageKey = 'gottapack';
 
+function recursivelyUpdateItems(items, name, newCheckedState) {
+    for (const item of items) {
+        if (item.name === name) {
+            item.is_packed = newCheckedState;
+            break;
+        }
+
+        if (item.items.length > 0) {
+            recursivelyUpdateItems(item.items, name, newCheckedState);
+        }
+    };
+}
+
+// Update the state of a checkbox
+function updateCheckedState(checkbox, name) {
+    const newCheckedState = checkbox.checked;
+    
+    const state = JSON.parse(localStorage.getItem(storageKey));
+    
+    recursivelyUpdateItems(state, name, newCheckedState);
+
+    localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
 function generateCheckboxItem(itemName, isPacked) {
     const itemNameWithoutSpaces = itemName.replace(/ /g, '_');
 
@@ -10,7 +34,7 @@ function generateCheckboxItem(itemName, isPacked) {
     checkbox.type = 'checkbox';
     checkbox.id = itemNameWithoutSpaces;
     // TODO: redefine this
-    checkbox.onclick = function () { updateCheckedState(this); };
+    checkbox.onclick = function () { updateCheckedState(this, itemNameWithoutSpaces); };
     if (isPacked) checkbox.checked = true;
 
     const span = document.createElement('span');
