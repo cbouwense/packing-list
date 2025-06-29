@@ -25,7 +25,7 @@ function updateCheckedState(checkbox, name) {
     localStorage.setItem(storageKey, JSON.stringify(state));
 }
 
-function generateCheckboxItem(itemName, isPacked) {
+function generateCheckboxItem(itemName, isPacked, indent) {
     const itemNameWithoutSpaces = itemName.replace(/ /g, '_');
 
     const li = document.createElement('li');
@@ -33,8 +33,8 @@ function generateCheckboxItem(itemName, isPacked) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = itemNameWithoutSpaces;
-    // TODO: redefine this
     checkbox.onclick = function () { updateCheckedState(this, itemNameWithoutSpaces); };
+    checkbox.style.marginLeft = `${indent * 3}rem`; 
     if (isPacked) checkbox.checked = true;
 
     const span = document.createElement('span');
@@ -67,7 +67,7 @@ function addNewItem() {
     if (document.getElementById(itemName.replace(/ /g, '_'))) return;
 
     // Add the new item to the document.
-    generateCheckboxItem(itemName, false);
+    generateCheckboxItem(itemName, false, 0);
 
     // Reset the state of the "new item" input.
     document.getElementById('new-item').value = '';
@@ -80,6 +80,7 @@ function addNewItem() {
     // TODO: update checked state.
 }
 
+// TODO: handle nested items.
 function deleteItem(item) {
     const itemName = item.parentElement.querySelector('span').textContent;
     document.getElementById(itemName.replace(/ /g, '_')).checked = false;
@@ -101,11 +102,13 @@ function reset() {
     location.reload();
 }
 
-function recursivelyGenerateCheckboxes(items) {
+function recursivelyGenerateCheckboxes(items, indent) {
     items.forEach(({ name, is_packed, items }) => {
-        generateCheckboxItem(name, is_packed);
+        generateCheckboxItem(name, is_packed, indent);
 
-        if (items.length > 0) recursivelyGenerateCheckboxes(items)
+        if (items.length > 0) {
+            recursivelyGenerateCheckboxes(items, indent + 1);
+        }
     });
 };
 
@@ -146,7 +149,7 @@ async function init() {
     // existing session, then we're going to want to populate the document with the state.
     if (storedItems) {
         const items = JSON.parse(storedItems);
-        recursivelyGenerateCheckboxes(items);
+        recursivelyGenerateCheckboxes(items, 0);
     }
     // If we are loading a page that has no state in its localstorage for gottapack, then we want
     // to initialize the document with the defaultItems.
@@ -154,7 +157,7 @@ async function init() {
         const res = await fetch(`./defaultItems.json`);
         const defaultItems = await res.json();
 
-        recursivelyGenerateCheckboxes(defaultItems);
+        recursivelyGenerateCheckboxes(defaultItems, 0);
 
         localStorage.setItem(storageKey, JSON.stringify(defaultItems));
     }
