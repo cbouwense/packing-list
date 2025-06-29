@@ -16,33 +16,38 @@ function recursivelyUpdateItems(items, name, newCheckedState) {
 
 // Update the state of a checkbox
 function updateCheckedState(checkbox, name) {
-    const newCheckedState = checkbox.checked;
-    
     const state = JSON.parse(localStorage.getItem(storageKey));
     
-    recursivelyUpdateItems(state, name, newCheckedState);
+    recursivelyUpdateItems(state, name, checkbox.checked);
 
     localStorage.setItem(storageKey, JSON.stringify(state));
 }
 
-function generateCheckboxItem(itemName, isPacked, indent) {
+function generateCheckboxItem({ itemName, isPacked, indent, isCollapsed, isCollapsible }) {
     const itemNameWithoutSpaces = itemName.replace(/ /g, '_');
 
     const li = document.createElement('li');
 
+    // Create the checkbox.
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = itemNameWithoutSpaces;
     checkbox.onclick = function () { updateCheckedState(this, itemNameWithoutSpaces); };
-    checkbox.style.marginLeft = `${indent * 3}rem`; 
+    checkbox.style.marginLeft = `${indent * 3}rem`;
     if (isPacked) checkbox.checked = true;
 
+    // Create the button to collapse the item when possible.
+    const collapseButton = document.createElement('button');
+    collapseButton.textContent = isCollapsed ? '>' : 'V';
+    collapseButton.style.opacity = isCollapsible ? 1 : 0;
+
+    // Create the name of the item.
     const span = document.createElement('span');
     span.textContent = itemName;
 
-    const button = document.createElement('button');
-    button.textContent = 'delete';
-    button.onclick = function () { deleteItem(this); };
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'delete';
+    deleteButton.onclick = function () { deleteItem(this); };
 
     // This is the stuff that goes on the left side of the screen; so, the
     // checkbox and the name of the item.
@@ -50,11 +55,13 @@ function generateCheckboxItem(itemName, isPacked, indent) {
     checkboxDiv.style.display    = 'flex';
     checkboxDiv.style.alignItems = 'center';
     checkboxDiv.style.textAlign  = 'center';
+    checkboxDiv.style.gap        = '8px';
 
+    checkboxDiv.appendChild(collapseButton);
     checkboxDiv.appendChild(checkbox);
     checkboxDiv.appendChild(span);
     li.appendChild(checkboxDiv);
-    li.appendChild(button);
+    li.appendChild(deleteButton);
 
     document.getElementById('packing-list').appendChild(li);
 }
@@ -67,7 +74,13 @@ function addNewItem() {
     if (document.getElementById(itemName.replace(/ /g, '_'))) return;
 
     // Add the new item to the document.
-    generateCheckboxItem(itemName, false, 0);
+    generateCheckboxItem({
+        name: itemName,
+        isPacked: false,
+        indent: 0,
+        isCollapsed: false,
+        isCollapsible: false
+    });
 
     // Reset the state of the "new item" input.
     document.getElementById('new-item').value = '';
@@ -103,8 +116,14 @@ function reset() {
 }
 
 function recursivelyGenerateCheckboxes(items, indent) {
-    items.forEach(({ name, is_packed, items }) => {
-        generateCheckboxItem(name, is_packed, indent);
+    items.forEach(({ name, is_packed, is_collapsed, items }) => {
+        generateCheckboxItem({
+            itemName: name,
+            isPacked: is_packed,
+            indent,
+            isCollapsed: is_collapsed,
+            isCollapsible: items.length > 0,
+        });
 
         if (items.length > 0) {
             recursivelyGenerateCheckboxes(items, indent + 1);
@@ -123,26 +142,7 @@ async function init() {
         storageKey += '-' + page;
     }
 
-    // Store in the form
-    // "gottapack": [
-    //    {
-    //        "name": "pkw",
-    //        "is_packed": false,
-    //        "items": []
-    //    },
-    //    {
-    //        "name": "backpack",
-    //        "is_packed": false,
-    //        "items": [
-    //            {
-    //                "name": "sunglasses",
-    //                "is_packed": false,
-    //                "items": []
-    //            },
-    //     ...
-    // ];
-    // 
-    // See defaultItems.json for a fuller understanding of the schema. 
+    // See defaultItems.json for schema. 
     const storedItems = localStorage.getItem(storageKey);
 
     // If we are loading a page that already has some stored items in its local storage from an
