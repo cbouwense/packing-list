@@ -1,17 +1,84 @@
 [
-    "pkw",
-    "sunglasses",
-    "glasses",
-    "ear buds",
-    "phone charger",
-    "eye mask",
-    "ear plugs",
-    "inhaler",
-    "clothes",
-    "toiletries",
-    "water bottle",
-    "books",
-    "lumbar pad",
-    "lumbar towel",
-    "sandals"
+    {
+        "name": "pkw",
+        "is_packed": false,
+        "items": []
+    },
+    {
+        "name": "backpack",
+        "is_packed": false,
+        "items": [
+            {
+                "name": "sunglasses",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "glasses",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "ear buds",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "phone charger",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "books",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "water bottle",
+                "is_packed": false,
+                "items": []
+            }
+        ]
+    },
+    {
+        "name": "suitcase",
+        "is_packed": false,
+        "items": [
+            {
+                "name": "eye mask",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "ear plugs",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "inhaler",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "lumbar pad",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "clothes",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "toiletries",
+                "is_packed": false,
+                "items": []
+            },
+            {
+                "name": "sandals",
+                "is_packed": false,
+                "items": []
+            }
+        ]
+    }
 ]
