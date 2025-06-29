@@ -14,6 +14,19 @@ function recursivelyUpdateItems(items, name, newCheckedState) {
     };
 }
 
+function recursivelyUpdateCollapsedItems(items, name, newCollapsedState) {
+    for (const item of items) {
+        if (item.name === name) {
+            item.is_collapsed = newCollapsedState;
+            break;
+        }
+
+        if (item.items.length > 0) {
+            recursivelyUpdateCollapsedItems(item.items, name, newCollapsedState);
+        }
+    };
+}
+
 // Update the state of a checkbox
 function updateCheckedState(checkbox, name) {
     const state = JSON.parse(localStorage.getItem(storageKey));
